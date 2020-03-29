@@ -175,6 +175,29 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Complication\Create.cshtml" />
+    <Content Include="Views\Complication\Delete.cshtml" />
+    <Content Include="Views\Complication\Edit.cshtml" />
+    <Content Include="Views\History\Create.cshtml" />
+    <Content Include="Views\History\Delete.cshtml" />
+    <Content Include="Views\History\Edit.cshtml" />
+    <Content Include="Views\KeyPoint\Create.cshtml" />
+    <Content Include="Views\KeyPoint\Delete.cshtml" />
+    <Content Include="Views\KeyPoint\Edit.cshtml" />
+    <Content Include="Views\Procedure\Create.cshtml" />
+    <Content Include="Views\Procedure\Delete.cshtml" />
+    <Content Include="Views\Procedure\Details.cshtml" />
+    <Content Include="Views\Procedure\Edit.cshtml" />
+    <Content Include="Views\Procedure\Index.cshtml" />
+    <Content Include="Views\Reference\Create.cshtml" />
+    <Content Include="Views\Reference\Delete.cshtml" />
+    <Content Include="Views\Reference\Edit.cshtml" />
+    <Content Include="Views\Step\Create.cshtml" />
+    <Content Include="Views\Step\Delete.cshtml" />
+    <Content Include="Views\Step\Edit.cshtml" />
+    <Content Include="Views\Variation\Create.cshtml" />
+    <Content Include="Views\Variation\Delete.cshtml" />
+    <Content Include="Views\Variation\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

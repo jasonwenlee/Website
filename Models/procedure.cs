@@ -10,7 +10,6 @@ namespace Website.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public procedure()
         {
-            this.clinicalscenarios = new HashSet<clinicalscenario>();
             this.complications = new HashSet<complication>();
             this.histories = new HashSet<history>();
             this.keypoints = new HashSet<keypoint>();
@@ -27,8 +26,6 @@ namespace Website.Models
         public string VideoSource { get; set; }
         public string Description { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<clinicalscenario> clinicalscenarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<complication> complications { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
