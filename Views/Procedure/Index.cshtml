@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Website.Models.procedure>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.LongName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ShortName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.VideoSource)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.LongName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ShortName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.VideoSource)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @*@Html.ActionLink("Edit", "Edit", new { id=item.ProcedureID }) |*@
+            @Html.ActionLink("Details", "Details", new { id=item.ProcedureID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.ProcedureID })
+        </td>
+    </tr>
+}
+
+</table>

@@ -1,0 +1,357 @@
+﻿@model Website.Models.procedure
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Information</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.LongName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LongName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ShortName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ShortName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VideoSource)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VideoSource)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ProcedureID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+@*STEPS*@
+<fieldset>
+    <legend>Steps</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Content
+            </th>
+            <th>
+                Diagram URL
+            </th>
+        </tr>
+        @if (Model.steps.Count > 0)
+        {
+            foreach (var item in Model.steps)
+            {
+                <tr>
+                    <td>
+                        @item.Content
+                    </td>
+                    <td>
+                        @item.DiagramURL
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "Step",
+                            action = "Edit",
+                            id = item.StepID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "Step",
+                            action = "Delete",
+                            id = item.StepID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new steps", new
+        {
+            controller = "Step",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
+
+
+@*KEY POINTS*@
+<fieldset>
+    <legend>Key Points</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Importance
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Diagram URL
+            </th>
+        </tr>
+        @if (Model.keypoints.Count > 0)
+        {
+            foreach (var item in Model.keypoints)
+            {
+                <tr>
+                    <td>
+                        @item.Importance
+                    </td>
+                    <td>
+                        @item.Description
+                    </td>
+                    <td>
+                        @item.DiagramURL
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "KeyPoint",
+                            action = "Edit",
+                            id = item.KeyPointID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "KeyPoint",
+                            action = "Delete",
+                            id = item.KeyPointID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new key points", new
+        {
+            controller = "KeyPoint",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
+
+@*VARIATIONS*@
+<fieldset>
+    <legend>Variations</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Header
+            </th>
+            <th>
+                Sub Header
+            </th>
+        </tr>
+        @if (Model.variations.Count > 0)
+        {
+            foreach (var item in Model.variations)
+            {
+                <tr>
+                    <td>
+                        @item.Header
+                    </td>
+                    <td>
+                        @item.SubHeader
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "Variation",
+                            action = "Edit",
+                            id = item.VariationID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "Variation",
+                            action = "Delete",
+                            id = item.VariationID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new variations", new
+        {
+            controller = "Variation",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
+
+@*COMPLICATIONS*@
+<fieldset>
+    <legend>Complications</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Diagram URL
+            </th>
+        </tr>
+        @if (Model.complications.Count > 0)
+        {
+            foreach (var item in Model.complications)
+            {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        @item.DiagramURL
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "Complication",
+                            action = "Edit",
+                            id = item.ComplicationID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "Complication",
+                            action = "Delete",
+                            id = item.ComplicationID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new complications", new
+        {
+            controller = "Complication",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
+
+@*HISTORY*@
+<fieldset>
+    <legend>History</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Content
+            </th>
+        </tr>
+        @if (Model.histories.Count > 0)
+        {
+            foreach (var item in Model.histories)
+            {
+                <tr>
+                    <td>
+                        @item.Content
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "History",
+                            action = "Edit",
+                            id = item.HistoryID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "History",
+                            action = "Delete",
+                            id = item.HistoryID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new history", new
+        {
+            controller = "History",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
+
+@*REFERENCES*@
+<fieldset>
+    <legend>References</legend>
+    <table class="table">
+        <tr>
+            <th>
+                Content
+            </th>
+        </tr>
+        @if (Model.references.Count > 0)
+        {
+            foreach (var item in Model.references)
+            {
+                <tr>
+                    <td>
+                        @item.Content
+                    </td>
+                    <td>
+                        @Html.RouteLink("Edit", new
+                        {
+                            controller = "Reference",
+                            action = "Edit",
+                            id = item.ReferenceID
+                        })|
+                        @Html.RouteLink("Delete", new
+                        {
+                            controller = "Reference",
+                            action = "Delete",
+                            id = item.ReferenceID
+                        })|
+
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+    <p>
+        @Html.RouteLink("Add new references", new
+        {
+            controller = "Reference",
+            action = "Create",
+            id = Model.ProcedureID
+        })
+    </p>
+</fieldset>
