@@ -22,7 +22,7 @@ namespace Website.Controllers
         public async Task<ActionResult> Index()
         {
             List<step> stepInfo = new List<step>();
-            // Send request to find web api REST service
+            // Send request to find web api REST service for steps
             HttpResponseMessage response = await client.GetAsync(urlPath);
 
             // Check if response is successful 
@@ -32,6 +32,27 @@ namespace Website.Controllers
                 stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail);
             }
             return View(stepInfo);
+        }
+
+        // Get index in Json format
+        [HttpGet]
+        public async Task<ActionResult> IndexJson(int id)
+        {
+            List<step> stepInfo = new List<step>();
+            // Send request to find web api REST service for steps
+            HttpResponseMessage response = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail).FindAll(x => x.ProcedureID == id);
+                // Serialise back to json
+                var stepInfoJson = JsonConvert.SerializeObject(stepInfo);
+                return Json(stepInfoJson, JsonRequestBehavior.AllowGet);
+            }
+            return null;
         }
 
         // GET: Step/Details/
@@ -54,7 +75,6 @@ namespace Website.Controllers
         }
 
         // GET: Step/Create
-        [HttpGet]
         public ActionResult Create()
         {
             ViewBag.Procedure = ProcedureController.procName;
@@ -66,9 +86,26 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,StepID,Content,DiagramURL")] step step)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,StepID,Content,DiagramURL,Number")] step step)
         {
+            int countSteps = 0;
+            List<int> listOfNumbers = new List<int>();
+            List<step> stepInfo = new List<step>();
+            // Send request to find web api REST service for steps
+            HttpResponseMessage getResponse = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (getResponse.IsSuccessStatusCode)
+            {
+                var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
+                countSteps = stepInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+            }
+
             step.ProcedureID = ProcedureController.procID;
+            step.Number = countSteps;
+
             HttpResponseMessage response = await client.PostAsJsonAsync(urlPath, step);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details","Procedure", new { id = ProcedureController.procID });
@@ -98,12 +135,38 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,StepID,Content,DiagramURL")] step step)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,StepID,Content,DiagramURL,Number")] step step)
         {
             step.ProcedureID = ProcedureController.procID;
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, step.StepID.ToString()), step);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
+        }
+
+        // Edit sequence of rows and make updates to the database in server
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateHeaderAntiForgeryToken]
+        public async Task<ActionResult> EditSequence(string steps, string newSequence, string oldSequence)
+        {
+            var newSeq = int.Parse(newSequence);
+            var oldSeq = int.Parse(oldSequence);
+            List<step> step = JsonConvert.DeserializeObject<List<step>>(steps);
+
+            // Find rows that will be swapped
+            step findFirstRow = step.FirstOrDefault(x => x.Number == oldSeq);
+            step findSecondRow = step.FirstOrDefault(x => x.Number == newSeq);
+
+            // Proceed to swap rows
+            findFirstRow.Number = newSeq;
+            findSecondRow.Number = oldSeq;
+
+            HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.StepID.ToString()), findFirstRow);
+            responseOne.EnsureSuccessStatusCode();
+            HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.StepID.ToString()), findSecondRow);
+            responseOne.EnsureSuccessStatusCode();
+            return null;
         }
 
         // GET: Step/Delete/

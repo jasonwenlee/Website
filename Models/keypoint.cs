@@ -12,6 +12,7 @@ namespace Website.Models
         public Nullable<int> Importance { get; set; }
         public string Description { get; set; }
         public string DiagramURL { get; set; }
+        public Nullable<int> Number { get; set; }
 
         public virtual procedure procedure { get; set; }
     }

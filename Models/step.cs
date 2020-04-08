@@ -11,6 +11,7 @@ namespace Website.Models
         public int StepID { get; set; }
         public string Content { get; set; }
         public string DiagramURL { get; set; }
+        public Nullable<int> Number { get; set; }
 
         public virtual procedure procedure { get; set; }
     }

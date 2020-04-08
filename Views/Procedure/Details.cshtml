@@ -6,6 +6,10 @@
 
 <h2>Details</h2>
 
+@*Use for Ajax anti forgery token*@
+@Html.AntiForgeryToken()
+
+
 <div>
     <h4>Information</h4>
     <hr />
@@ -52,51 +56,65 @@
 @*STEPS*@
 <fieldset>
     <legend>Steps</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Content
-            </th>
-            <th>
-                Diagram URL
-            </th>
-        </tr>
-        @if (Model.steps.Count > 0)
-        {
-            foreach (var item in Model.steps)
+    <table class="table" id="stepsTable">
+        <thead>
+            <tr>
+                <th>
+                    Number
+                </th>
+                <th>
+                    Content
+                </th>
+                <th>
+                    Diagram URL
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.steps.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Content
-                    </td>
-                    <td>
-                        @item.DiagramURL
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "Step",
-                            action = "Edit",
-                            id = item.StepID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "Step",
-                            action = "Delete",
-                            id = item.StepID
-                        })|
+                int i = 0;
+                foreach (var item in Model.steps)
+                {
+                    <tr>
+                        <td>
+                           @item.Number
+                        </td>
+                        <td>
+                            @item.Content
+                        </td>
+                        <td>
+                            @item.DiagramURL
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "Step",
+                                action = "Edit",
+                                id = item.StepID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "Step",
+                                action = "Delete",
+                                id = item.StepID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new steps", new
         {
             controller = "Step",
             action = "Create",
-            id = Model.ProcedureID
+            id = Model.ProcedureID,
         })
     </p>
 </fieldset>
@@ -105,50 +123,63 @@
 @*KEY POINTS*@
 <fieldset>
     <legend>Key Points</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Importance
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Diagram URL
-            </th>
-        </tr>
-        @if (Model.keypoints.Count > 0)
-        {
-            foreach (var item in Model.keypoints)
+    <table class="table" id="keyPointsTable">
+        <thead>
+            <tr>
+                <th>
+                    Paragraph
+                </th>
+                <th>
+                    Importance
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Diagram URL
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.keypoints.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Importance
-                    </td>
-                    <td>
-                        @item.Description
-                    </td>
-                    <td>
-                        @item.DiagramURL
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "KeyPoint",
-                            action = "Edit",
-                            id = item.KeyPointID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "KeyPoint",
-                            action = "Delete",
-                            id = item.KeyPointID
-                        })|
+                foreach (var item in Model.keypoints)
+                {
+                    <tr>
+                        <td>
+                            @item.Number
+                        </td>
+                        <td>
+                            @item.Importance
+                        </td>
+                        <td>
+                            @item.Description
+                        </td>
+                        <td>
+                            @item.DiagramURL
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "KeyPoint",
+                                action = "Edit",
+                                id = item.KeyPointID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "KeyPoint",
+                                action = "Delete",
+                                id = item.KeyPointID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new key points", new
@@ -163,44 +194,57 @@
 @*VARIATIONS*@
 <fieldset>
     <legend>Variations</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Header
-            </th>
-            <th>
-                Sub Header
-            </th>
-        </tr>
-        @if (Model.variations.Count > 0)
-        {
-            foreach (var item in Model.variations)
+    <table class="table" id="variationsTable">
+        <thead>
+            <tr>
+                <th>
+                    Paragraph
+                </th>
+                <th>
+                    Header
+                </th>
+                <th>
+                    Sub Header
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.variations.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Header
-                    </td>
-                    <td>
-                        @item.SubHeader
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "Variation",
-                            action = "Edit",
-                            id = item.VariationID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "Variation",
-                            action = "Delete",
-                            id = item.VariationID
-                        })|
+                foreach (var item in Model.variations)
+                {
+                    <tr>
+                        <td>
+                            @item.Number
+                        </td>
+                        <td>
+                            @item.Header
+                        </td>
+                        <td>
+                            @item.SubHeader
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "Variation",
+                                action = "Edit",
+                                id = item.VariationID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "Variation",
+                                action = "Delete",
+                                id = item.VariationID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new variations", new
@@ -215,44 +259,57 @@
 @*COMPLICATIONS*@
 <fieldset>
     <legend>Complications</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Name
-            </th>
-            <th>
-                Diagram URL
-            </th>
-        </tr>
-        @if (Model.complications.Count > 0)
-        {
-            foreach (var item in Model.complications)
+    <table class="table" id="complicationsTable">
+        <thead>
+            <tr>
+                <th>
+                    Number
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Diagram URL
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.complications.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Name
-                    </td>
-                    <td>
-                        @item.DiagramURL
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "Complication",
-                            action = "Edit",
-                            id = item.ComplicationID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "Complication",
-                            action = "Delete",
-                            id = item.ComplicationID
-                        })|
+                foreach (var item in Model.complications)
+                {
+                    <tr>
+                        <td>
+                            @item.Number
+                        </td>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>
+                            @item.DiagramURL
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "Complication",
+                                action = "Edit",
+                                id = item.ComplicationID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "Complication",
+                                action = "Delete",
+                                id = item.ComplicationID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new complications", new
@@ -267,38 +324,51 @@
 @*HISTORY*@
 <fieldset>
     <legend>History</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Content
-            </th>
-        </tr>
-        @if (Model.histories.Count > 0)
-        {
-            foreach (var item in Model.histories)
+    <table class="table" id="historyTable">
+        <thead>
+            <tr>
+                <th>
+                    Paragraph
+                </th>
+                <th>
+                    Content
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.histories.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Content
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "History",
-                            action = "Edit",
-                            id = item.HistoryID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "History",
-                            action = "Delete",
-                            id = item.HistoryID
-                        })|
+                foreach (var item in Model.histories)
+                {
+                    <tr>
+                        <td>
+                            @item.Number
+                        </td>                        
+                        <td>
+                            @item.Content
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "History",
+                                action = "Edit",
+                                id = item.HistoryID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "History",
+                                action = "Delete",
+                                id = item.HistoryID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new history", new
@@ -313,38 +383,51 @@
 @*REFERENCES*@
 <fieldset>
     <legend>References</legend>
-    <table class="table">
-        <tr>
-            <th>
-                Content
-            </th>
-        </tr>
-        @if (Model.references.Count > 0)
-        {
-            foreach (var item in Model.references)
+    <table class="table" id="referencesTable">
+        <thead>
+            <tr>
+                <th>
+                    Number
+                </th>
+                <th>
+                    Content
+                </th>
+                <th>
+                    User Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.references.Count > 0)
             {
-                <tr>
-                    <td>
-                        @item.Content
-                    </td>
-                    <td>
-                        @Html.RouteLink("Edit", new
-                        {
-                            controller = "Reference",
-                            action = "Edit",
-                            id = item.ReferenceID
-                        })|
-                        @Html.RouteLink("Delete", new
-                        {
-                            controller = "Reference",
-                            action = "Delete",
-                            id = item.ReferenceID
-                        })|
+                foreach (var item in Model.references)
+                {
+                    <tr>
+                        <td>
+                            @item.Number
+                        </td>
+                        <td>
+                            @item.Content
+                        </td>
+                        <td>
+                            @Html.RouteLink("Edit", new
+                            {
+                                controller = "Reference",
+                                action = "Edit",
+                                id = item.ReferenceID
+                            })|
+                            @Html.RouteLink("Delete", new
+                            {
+                                controller = "Reference",
+                                action = "Delete",
+                                id = item.ReferenceID
+                            })|
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
+        </tbody>
     </table>
     <p>
         @Html.RouteLink("Add new references", new
@@ -355,3 +438,133 @@
         })
     </p>
 </fieldset>
+
+@section Scripts {
+    <script>
+        // The following script uses AJAX calls along with the DataTable Extensions to update and reorder rows.
+        $(document).ready(function () {
+            var validationToken = $('input[name=__RequestVerificationToken]').val();
+            function CommonAjaxCall(type, url, successCallback) {
+                $.ajax({
+                    type: type,
+                    url: url,
+                    dataType: 'json', // DataType is used when getting info from server
+                    success: successCallback,
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log('error');
+                    }
+                });
+            }
+            function UpdateRowAjaxCall(type, url, token, data) {
+                $.ajax({
+                    type: type,
+                    url: url,
+                    data: data,
+                    contentType: 'application/json; charset=utf-8', // ContentType is used when posting info to the server
+                    headers: { '__RequestVerificationToken': token },
+                    success: function () {},
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","Step", new { id = Model.ProcedureID })", onSuccessSteps);
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","KeyPoint", new { id = Model.ProcedureID })", onSuccessKeyPoints);
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","Variation", new { id = Model.ProcedureID })", onSuccessVariations);
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","Complication", new { id = Model.ProcedureID })", onSuccessComplications);
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","History", new { id = Model.ProcedureID })", onSuccessHistory);
+            CommonAjaxCall("GET", "@Url.Action("IndexJson","Reference", new { id = Model.ProcedureID })", onSuccessReferences);
+
+            // STEPS
+            function onSuccessSteps(data) {
+                var stepsTable = $('#stepsTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                stepsTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        steps: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Step")", validationToken, newData)
+                });
+            }
+            // KEY POINTS
+            function onSuccessKeyPoints(data) {
+                var keyPointsTable = $('#keyPointsTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                keyPointsTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        keypoints: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","KeyPoint")", validationToken, newData)
+                });
+            }
+            // VARIATIONS
+            function onSuccessVariations(data) {
+                var variationsTable = $('#variationsTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                variationsTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        variations: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Variation")", validationToken, newData)
+                });
+            }
+            // COMPLICATIONS
+            function onSuccessComplications(data) {
+                var complicationsTable = $('#complicationsTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                complicationsTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        complications: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Complication")", validationToken, newData)
+                });
+            }
+            // HISTORY
+            function onSuccessHistory(data) {
+                var historyTable = $('#historyTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                historyTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        history: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","History")", validationToken, newData)
+                });
+            }
+            // REFERENCES
+            function onSuccessReferences(data) {
+                var referencesTable = $('#referencesTable').DataTable({
+                    paging: false,
+                    rowReorder: true,
+                });
+                referencesTable.on('row-reorder', function (e, detail, edit) {
+                    var newData = JSON.stringify({
+                        references: data,
+                        newSequence: detail[0].newData,
+                        oldSequence: detail[0].oldData
+                    });
+                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Reference")", validationToken, newData)
+                });
+            }
+        })
+    </script>
+}

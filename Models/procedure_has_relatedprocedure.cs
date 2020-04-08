@@ -5,14 +5,13 @@ using System.Web;
 
 namespace Website.Models
 {
-    public class variation
+    public class procedure_has_relatedprocedure
     {
+        public int Procedure_has_RelatedProcedurecol { get; set; }
         public int ProcedureID { get; set; }
-        public int VariationID { get; set; }
-        public string Header { get; set; }
-        public string SubHeader { get; set; }
-        public Nullable<int> Number { get; set; }
+        public int RelatedProcedureID { get; set; }
 
         public virtual procedure procedure { get; set; }
+        public virtual procedure procedure1 { get; set; }
     }
 }

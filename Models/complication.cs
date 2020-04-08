@@ -11,6 +11,7 @@ namespace Website.Models
         public int ComplicationID { get; set; }
         public string Name { get; set; }
         public string DiagramURL { get; set; }
+        public Nullable<int> Number { get; set; }
 
         public virtual procedure procedure { get; set; }
     }

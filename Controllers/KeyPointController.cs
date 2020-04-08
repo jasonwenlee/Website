@@ -34,6 +34,27 @@ namespace Website.Controllers
             return View(keyPointInfo);
         }
 
+        // Get index in Json format
+        [HttpGet]
+        public async Task<ActionResult> IndexJson(int id)
+        {
+            List<keypoint> keyPointInfo = new List<keypoint>();
+            // Send request to find web api REST service
+            HttpResponseMessage response = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                keyPointInfo = JsonConvert.DeserializeObject<List<keypoint>>(responseDetail).FindAll(x => x.ProcedureID == id);
+                // Serialise back to json
+                var keyPointInfoJson = JsonConvert.SerializeObject(keyPointInfo);
+                return Json(keyPointInfoJson, JsonRequestBehavior.AllowGet);
+            }
+            return null;
+        }
+
         // GET: KeyPoints/Details/
         // Note: similar to edit function but this will be used to get display information within the model
         [HttpGet]
@@ -68,7 +89,23 @@ namespace Website.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "ProcedureID,KeyPointID,Importance,Description,DiagramURL")] keypoint keypoint)
         {
+            int countSteps = 0;
+            List<keypoint> keyPointInfo = new List<keypoint>();
+            // Send request to find web api REST service for steps
+            HttpResponseMessage getResponse = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (getResponse.IsSuccessStatusCode)
+            {
+                var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                keyPointInfo = JsonConvert.DeserializeObject<List<keypoint>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
+                countSteps = keyPointInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+            }
+
             keypoint.ProcedureID = ProcedureController.procID;
+            keypoint.Number = countSteps;
+
             HttpResponseMessage response = await client.PostAsJsonAsync(urlPath, keypoint);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
@@ -106,6 +143,32 @@ namespace Website.Controllers
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
         }
 
+        // Edit sequence of rows and make updates to the database in server
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateHeaderAntiForgeryToken]
+        public async Task<ActionResult> EditSequence(string keypoints, string newSequence, string oldSequence)
+        {
+            var newSeq = int.Parse(newSequence) + 1;
+            var oldSeq = int.Parse(oldSequence) + 1;
+            List<keypoint> keyPointInfo = JsonConvert.DeserializeObject<List<keypoint>>(keypoints);
+
+            // Find rows that will be swapped
+            keypoint findFirstRow = keyPointInfo.FirstOrDefault(x => x.Number == oldSeq);
+            keypoint findSecondRow = keyPointInfo.FirstOrDefault(x => x.Number == newSeq);
+
+            // Proceed to swap rows
+            findFirstRow.Number = newSeq;
+            findSecondRow.Number = oldSeq;
+
+            HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.KeyPointID.ToString()), findFirstRow);
+            responseOne.EnsureSuccessStatusCode();
+            HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.KeyPointID.ToString()), findSecondRow);
+            responseOne.EnsureSuccessStatusCode();
+            return null;
+        }
+
         // GET: KeyPoints/Delete/
         [HttpGet]
         public async Task<ActionResult> Delete(int? id)
@@ -134,6 +197,5 @@ namespace Website.Controllers
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
         }
-
     }
 }

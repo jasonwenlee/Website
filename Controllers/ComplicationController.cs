@@ -34,6 +34,27 @@ namespace Website.Controllers
             return View(complicationInfo);
         }
 
+        // Get index in Json format
+        [HttpGet]
+        public async Task<ActionResult> IndexJson(int id)
+        {
+            List<complication> complicationInfo = new List<complication>();
+            // Send request to find web api REST service
+            HttpResponseMessage response = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                complicationInfo = JsonConvert.DeserializeObject<List<complication>>(responseDetail).FindAll(x => x.ProcedureID == id);
+                // Serialise back to json
+                var complicationInfoJson = JsonConvert.SerializeObject(complicationInfo);
+                return Json(complicationInfoJson, JsonRequestBehavior.AllowGet);
+            }
+            return null;
+        }
+
         // GET: Complications/Details/
         // Note: similar to edit function but this will be used to get display information within the model
         [HttpGet]
@@ -68,7 +89,23 @@ namespace Website.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "ProcedureID,ComplicationID,Name,DiagramURL")] complication complication)
         {
+            int countSteps = 0;
+            List<complication> complicationInfo = new List<complication>();
+            // Send request to find web api REST service for steps
+            HttpResponseMessage getResponse = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (getResponse.IsSuccessStatusCode)
+            {
+                var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
+                // Deserialise to find all steps belonging to chosen procedure
+                complicationInfo = JsonConvert.DeserializeObject<List<complication>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
+                countSteps = complicationInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+            }
+
             complication.ProcedureID = ProcedureController.procID;
+            complication.Number = countSteps;
+
             HttpResponseMessage response = await client.PostAsJsonAsync(urlPath, complication);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
@@ -104,6 +141,32 @@ namespace Website.Controllers
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, complication.ComplicationID.ToString()), complication);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
+        }
+
+        // Edit sequence of rows and make updates to the database in server
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateHeaderAntiForgeryToken]
+        public async Task<ActionResult> EditSequence(string complications, string newSequence, string oldSequence)
+        {
+            var newSeq = int.Parse(newSequence) + 1;
+            var oldSeq = int.Parse(oldSequence) + 1;
+            List<complication> complication = JsonConvert.DeserializeObject<List<complication>>(complications);
+
+            // Find rows that will be swapped
+            complication findFirstRow = complication.FirstOrDefault(x => x.Number == oldSeq);
+            complication findSecondRow = complication.FirstOrDefault(x => x.Number == newSeq);
+
+            // Proceed to swap rows
+            findFirstRow.Number = newSeq;
+            findSecondRow.Number = oldSeq;
+
+            HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.ComplicationID.ToString()), findFirstRow);
+            responseOne.EnsureSuccessStatusCode();
+            HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.ComplicationID.ToString()), findSecondRow);
+            responseOne.EnsureSuccessStatusCode();
+            return null;
         }
 
         // GET: Complications/Delete/

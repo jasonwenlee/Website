@@ -10,42 +10,64 @@
     @Html.ActionLink("Create New", "Create")
 </p>
 <table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.LongName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ShortName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.VideoSource)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.LongName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ShortName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.VideoSource)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @*@Html.ActionLink("Edit", "Edit", new { id=item.ProcedureID }) |*@
-            @Html.ActionLink("Details", "Details", new { id=item.ProcedureID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ProcedureID })
-        </td>
-    </tr>
-}
-
+    <thead>
+        <tr>
+            <th>
+                Long Name
+            </th>
+            <th>
+                Short Name
+            </th>
+            <th>
+                Video Link
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                User Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LongName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShortName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VideoSource)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = item.ProcedureID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ProcedureID })
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $.ajax({
+            url: "@Url.Action("IndexJson","Procedure")",
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            async: true,
+
+            success: function (data) {
+            },
+            error: function (error) {
+                alert("AJAX ERROR: " + error.status)
+            }
+        });
+    </script> 
+}

@@ -32,8 +32,26 @@ namespace Website.Controllers
             {
                 var responseDetail = response.Content.ReadAsStringAsync().Result;
                 procInfo = JsonConvert.DeserializeObject<List<procedure>>(responseDetail);
+                return View(procInfo);
             }
-            return View(procInfo);
+            return null;
+        }
+
+        // Get index in Json format
+        [HttpGet]
+        public async Task<ActionResult> IndexJson()
+        {
+            List<procedure> procInfo = new List<procedure>();
+            // Send request to find web api REST service
+            HttpResponseMessage response = await client.GetAsync(urlPath);
+
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                return Json(responseDetail, JsonRequestBehavior.AllowGet);
+            }
+            return null;
         }
 
         // GET: Procedure/Details/
@@ -46,14 +64,35 @@ namespace Website.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             HttpResponseMessage response = await client.GetAsync(String.Format("{0}/{1}", urlPath, id.ToString()));
+
             if (response.IsSuccessStatusCode)
             {
                 var responseDetail = response.Content.ReadAsStringAsync().Result;
                 procInfo = JsonConvert.DeserializeObject<procedure>(responseDetail);
                 procID = (int)procInfo.ProcedureID;
                 procName = procInfo.LongName;
+                return View(procInfo); 
             }
-            return View(procInfo);
+            return null;
+        }
+
+        // Get procedure details in Json format
+        [HttpGet]
+        public async Task<ActionResult> DetailsJson(int? id)
+        {
+            procedure procInfo = new procedure();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            HttpResponseMessage response = await client.GetAsync(String.Format("{0}/{1}", urlPath, id.ToString()));
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                return Json(responseDetail, JsonRequestBehavior.AllowGet);
+            }
+            return null;
         }
 
         // GET: Procedure/Create
