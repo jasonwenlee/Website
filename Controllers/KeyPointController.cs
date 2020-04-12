@@ -148,24 +148,28 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string keypoints, string newSequence, string oldSequence)
+        public async Task<ActionResult> EditSequence(string keypoints, string firstSequence, string secondSequence)
         {
-            var newSeq = int.Parse(newSequence) + 1;
-            var oldSeq = int.Parse(oldSequence) + 1;
-            List<keypoint> keyPointInfo = JsonConvert.DeserializeObject<List<keypoint>>(keypoints);
+            List<keypoint> listOfKeyPoints = JsonConvert.DeserializeObject<List<keypoint>>(keypoints);
 
             // Find rows that will be swapped
-            keypoint findFirstRow = keyPointInfo.FirstOrDefault(x => x.Number == oldSeq);
-            keypoint findSecondRow = keyPointInfo.FirstOrDefault(x => x.Number == newSeq);
+            keypoint findFirstRow = listOfKeyPoints.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
+            keypoint findSecondRow = listOfKeyPoints.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
 
             // Proceed to swap rows
-            findFirstRow.Number = newSeq;
-            findSecondRow.Number = oldSeq;
+            findFirstRow.Number = int.Parse(secondSequence);
+            findSecondRow.Number = int.Parse(firstSequence);
 
             HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.KeyPointID.ToString()), findFirstRow);
             responseOne.EnsureSuccessStatusCode();
             HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.KeyPointID.ToString()), findSecondRow);
             responseOne.EnsureSuccessStatusCode();
+
+            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            {
+                // Get updated list again
+                return Json(JsonConvert.SerializeObject(listOfKeyPoints), JsonRequestBehavior.AllowGet);
+            }
             return null;
         }
 

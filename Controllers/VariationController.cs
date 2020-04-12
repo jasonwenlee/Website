@@ -149,24 +149,28 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string variations, string newSequence, string oldSequence)
+        public async Task<ActionResult> EditSequence(string variations, string firstSequence, string secondSequence)
         {
-            var newSeq = int.Parse(newSequence) + 1;
-            var oldSeq = int.Parse(oldSequence) + 1;
-            List<variation> variationInfo = JsonConvert.DeserializeObject<List<variation>>(variations);
+            List<variation> listOfVariations = JsonConvert.DeserializeObject<List<variation>>(variations);
 
             // Find rows that will be swapped
-            variation findFirstRow = variationInfo.FirstOrDefault(x => x.Number == oldSeq);
-            variation findSecondRow = variationInfo.FirstOrDefault(x => x.Number == newSeq);
+            variation findFirstRow = listOfVariations.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
+            variation findSecondRow = listOfVariations.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
 
             // Proceed to swap rows
-            findFirstRow.Number = newSeq;
-            findSecondRow.Number = oldSeq;
+            findFirstRow.Number = int.Parse(secondSequence);
+            findSecondRow.Number = int.Parse(firstSequence);
 
             HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.VariationID.ToString()), findFirstRow);
             responseOne.EnsureSuccessStatusCode();
             HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.VariationID.ToString()), findSecondRow);
             responseOne.EnsureSuccessStatusCode();
+
+            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            {
+                // Get updated list again
+                return Json(JsonConvert.SerializeObject(listOfVariations), JsonRequestBehavior.AllowGet);
+            }
             return null;
         }
 

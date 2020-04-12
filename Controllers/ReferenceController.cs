@@ -149,24 +149,28 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string references, string newSequence, string oldSequence)
+        public async Task<ActionResult> EditSequence(string references, string firstSequence, string secondSequence)
         {
-            var newSeq = int.Parse(newSequence) + 1;
-            var oldSeq = int.Parse(oldSequence) + 1;
-            List<reference> referenceInfo = JsonConvert.DeserializeObject<List<reference>>(references);
+            List<reference> listOfReferences = JsonConvert.DeserializeObject<List<reference>>(references);
 
             // Find rows that will be swapped
-            reference findFirstRow = referenceInfo.FirstOrDefault(x => x.Number == oldSeq);
-            reference findSecondRow = referenceInfo.FirstOrDefault(x => x.Number == newSeq);
+            reference findFirstRow = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
+            reference findSecondRow = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
 
             // Proceed to swap rows
-            findFirstRow.Number = newSeq;
-            findSecondRow.Number = oldSeq;
+            findFirstRow.Number = int.Parse(secondSequence);
+            findSecondRow.Number = int.Parse(firstSequence);
 
             HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.ReferenceID.ToString()), findFirstRow);
             responseOne.EnsureSuccessStatusCode();
             HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.ReferenceID.ToString()), findSecondRow);
             responseOne.EnsureSuccessStatusCode();
+
+            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            {
+                // Get updated list again
+                return Json(JsonConvert.SerializeObject(listOfReferences), JsonRequestBehavior.AllowGet);
+            }
             return null;
         }
 

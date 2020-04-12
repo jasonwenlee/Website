@@ -76,7 +76,6 @@
         <tbody>
             @if (Model.steps.Count > 0)
             {
-                int i = 0;
                 foreach (var item in Model.steps)
                 {
                     <tr>
@@ -444,127 +443,142 @@
         // The following script uses AJAX calls along with the DataTable Extensions to update and reorder rows.
         $(document).ready(function () {
             var validationToken = $('input[name=__RequestVerificationToken]').val();
+            // Convert all exisiting tables into DataTable
+            var stepsTable = $('#stepsTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Step", new { id = Model.ProcedureID })", onSuccessSteps)
+            });
+            var keyPointsTable = $('#keyPointsTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","KeyPoint", new { id = Model.ProcedureID })", onSuccessKeyPoints)
+            });
+            var variationsTable = $('#variationsTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Variation", new { id = Model.ProcedureID })", onSuccessVariations)
+            });
+            var complicationsTable = $('#complicationsTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Complication", new { id = Model.ProcedureID })", onSuccessComplications)
+            });
+            var historyTable = $('#historyTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","History", new { id = Model.ProcedureID })", onSuccessHistory)
+            });
+            var referencesTable = $('#referencesTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                processing: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Reference", new { id = Model.ProcedureID })", onSuccessReferences)
+            });
+            // Common Ajax Call to get all data from server for each table
             function CommonAjaxCall(type, url, successCallback) {
                 $.ajax({
                     type: type,
                     url: url,
                     dataType: 'json', // DataType is used when getting info from server
-                    success: successCallback,
-                    error: function (xhr, textStatus, errorThrown) {
-                        console.log('error');
-                    }
+                    success: function (data) {
+                        successCallback(data);
+                    },
                 });
             }
-            function UpdateRowAjaxCall(type, url, token, data) {
+            // Common Ajax Call for updating rows in each table
+            function UpdateRowAjaxCall(type, url, token, data, recallFunction) {
                 $.ajax({
                     type: type,
                     url: url,
                     data: data,
                     contentType: 'application/json; charset=utf-8', // ContentType is used when posting info to the server
                     headers: { '__RequestVerificationToken': token },
-                    success: function () {},
-                    error: function (error) {
-                        console.log(error);
-                    }
+                    // Pass new data to call back functions
+                    success: function (result) {
+                        recallFunction(result)
+                    },
                 });
             }
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","Step", new { id = Model.ProcedureID })", onSuccessSteps);
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","KeyPoint", new { id = Model.ProcedureID })", onSuccessKeyPoints);
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","Variation", new { id = Model.ProcedureID })", onSuccessVariations);
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","Complication", new { id = Model.ProcedureID })", onSuccessComplications);
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","History", new { id = Model.ProcedureID })", onSuccessHistory);
-            CommonAjaxCall("GET", "@Url.Action("IndexJson","Reference", new { id = Model.ProcedureID })", onSuccessReferences);
-
             // STEPS
+            var newStepData;
             function onSuccessSteps(data) {
-                var stepsTable = $('#stepsTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                stepsTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        steps: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Step")", validationToken, newData)
-                });
+                newStepData = {};
+                newStepData.steps = data;
             }
+            stepsTable.on('row-reorder', function (e, detail, edit) {
+                newStepData.firstSequence = detail[0].newData;
+                newStepData.secondSequence = detail[0].oldData;
+                alert("MOVE!!!!   " + JSON.stringify(newStepData));
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Step")", validationToken, JSON.stringify(newStepData), onSuccessSteps);
+
+            });
             // KEY POINTS
+            var newKeyPointData;
             function onSuccessKeyPoints(data) {
-                var keyPointsTable = $('#keyPointsTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                keyPointsTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        keypoints: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","KeyPoint")", validationToken, newData)
-                });
+                newKeyPointData = {};
+                newKeyPointData.keypoints = data;
             }
+            keyPointsTable.on('row-reorder', function (e, detail, edit) {
+                newKeyPointData.firstSequence = detail[0].newData;
+                newKeyPointData.secondSequence = detail[0].oldData;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","KeyPoint")", validationToken, JSON.stringify(newKeyPointData), onSuccessKeyPoints);
+            });
             // VARIATIONS
+            var newVariationData;
             function onSuccessVariations(data) {
-                var variationsTable = $('#variationsTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                variationsTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        variations: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Variation")", validationToken, newData)
-                });
+                newVariationData = {};
+                newVariationData.variations = data;
             }
+            variationsTable.on('row-reorder', function (e, detail, edit) {
+                newVariationData.firstSequence = detail[0].newData;
+                newVariationData.secondSequence = detail[0].oldData;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Variation")", validationToken, JSON.stringify(newVariationData), onSuccessVariations);
+            });
             // COMPLICATIONS
+            var newComplicationData;
             function onSuccessComplications(data) {
-                var complicationsTable = $('#complicationsTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                complicationsTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        complications: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Complication")", validationToken, newData)
-                });
+                newComplicationData = {};
+                newComplicationData.complications = data;
             }
+            complicationsTable.on('row-reorder', function (e, detail, edit) {
+                newComplicationData.firstSequence = detail[0].newData;
+                newComplicationData.secondSequence = detail[0].oldData;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Complication")", validationToken, JSON.stringify(newComplicationData), onSuccessComplications);
+            });
             // HISTORY
+            var newHistoryData;
             function onSuccessHistory(data) {
-                var historyTable = $('#historyTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                historyTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        history: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","History")", validationToken, newData)
-                });
+                newHistoryData = {};
+                newHistoryData.history = data;
             }
+            historyTable.on('row-reorder', function (e, detail, edit) {
+                newHistoryData.firstSequence = detail[0].newData;
+                newHistoryData.secondSequence = detail[0].oldData;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","History")", validationToken, JSON.stringify(newHistoryData), onSuccessHistory);
+            });
             // REFERENCES
+            var newReferencesData;
             function onSuccessReferences(data) {
-                var referencesTable = $('#referencesTable').DataTable({
-                    paging: false,
-                    rowReorder: true,
-                });
-                referencesTable.on('row-reorder', function (e, detail, edit) {
-                    var newData = JSON.stringify({
-                        references: data,
-                        newSequence: detail[0].newData,
-                        oldSequence: detail[0].oldData
-                    });
-                    UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Reference")", validationToken, newData)
-                });
+                newReferencesData = {};
+                newReferencesData.references = data;
             }
+            referencesTable.on('row-reorder', function (e, detail, edit) {
+                newReferencesData.firstSequence = detail[0].newData;
+                newReferencesData.secondSequence = detail[0].oldData;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Reference")", validationToken, JSON.stringify(newReferencesData), onSuccessReferences);
+            });
         })
     </script>
 }

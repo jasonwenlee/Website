@@ -148,24 +148,29 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string history, string newSequence, string oldSequence)
+        public async Task<ActionResult> EditSequence(string history, string firstSequence, string secondSequence)
         {
-            var newSeq = int.Parse(newSequence) + 1;
-            var oldSeq = int.Parse(oldSequence) + 1;
-            List<history> historyInfo = JsonConvert.DeserializeObject<List<history>>(history);
+            // Get list of history as objects
+            List<history> listOfHistory = JsonConvert.DeserializeObject<List<history>>(history);
 
             // Find rows that will be swapped
-            history findFirstRow = historyInfo.FirstOrDefault(x => x.Number == oldSeq);
-            history findSecondRow = historyInfo.FirstOrDefault(x => x.Number == newSeq);
+            history findFirstRow = listOfHistory.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
+            history findSecondRow = listOfHistory.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
 
             // Proceed to swap rows
-            findFirstRow.Number = newSeq;
-            findSecondRow.Number = oldSeq;
+            findFirstRow.Number = int.Parse(secondSequence);
+            findSecondRow.Number = int.Parse(firstSequence);
 
             HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.HistoryID.ToString()), findFirstRow);
             responseOne.EnsureSuccessStatusCode();
             HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.HistoryID.ToString()), findSecondRow);
             responseOne.EnsureSuccessStatusCode();
+
+            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            {
+                // Get updated list again
+                return Json(JsonConvert.SerializeObject(listOfHistory), JsonRequestBehavior.AllowGet);
+            }
             return null;
         }
 
