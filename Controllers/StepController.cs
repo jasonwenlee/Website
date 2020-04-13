@@ -148,28 +148,30 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string steps, string firstSequence, string secondSequence)
+        public async Task<ActionResult> EditSequence(string steps, Dictionary<string, string> updates)
         {
-            List<step> listOfStep = JsonConvert.DeserializeObject<List<step>>(steps);
-            // Find rows that will be swapped
-            step findFirstRow = listOfStep.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
-            step findSecondRow = listOfStep.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
+            // USE TWO LISTS
+            // Only send query to db to update and no need for server to send back updated list every time.
+            // First list will be used to update on server.
+            List<step> listOfSteps = new List<step>();
+            // Second list will be used to update list on the client-side display. No need to get new updated list from server.
+            List<step> passListToView = JsonConvert.DeserializeObject<List<step>>(steps);
 
-            // Proceed to swap rows
-            findFirstRow.Number = int.Parse(secondSequence);
-            findSecondRow.Number = int.Parse(firstSequence);
-
-            HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.StepID.ToString()), findFirstRow);
-            responseOne.EnsureSuccessStatusCode();
-            HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.StepID.ToString()), findSecondRow);
-            responseTwo.EnsureSuccessStatusCode();
-
-            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            // Initialise empty row to store our row to be updated
+            step rowNumber = new step();
+            foreach (KeyValuePair<string, string> item in updates)
             {
-                // Get updated list again
-                return Json(JsonConvert.SerializeObject(listOfStep), JsonRequestBehavior.AllowGet);
+                listOfSteps = JsonConvert.DeserializeObject<List<step>>(steps);
+                rowNumber = listOfSteps.FirstOrDefault(x => x.Number == int.Parse(item.Key));
+                rowNumber.Number = int.Parse(item.Value);
+                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.StepID.ToString()), rowNumber);
+                response.EnsureSuccessStatusCode();
+                if (response.IsSuccessStatusCode)
+                {
+                    passListToView.FirstOrDefault(x => x.StepID == rowNumber.StepID).Number = int.Parse(item.Value);
+                }
             }
-            return null;
+            return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);
         }
 
         // GET: Step/Delete/

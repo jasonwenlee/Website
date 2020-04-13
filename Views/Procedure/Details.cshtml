@@ -447,45 +447,40 @@
             var stepsTable = $('#stepsTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Step", new { id = Model.ProcedureID })", onSuccessSteps)
             });
             var keyPointsTable = $('#keyPointsTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","KeyPoint", new { id = Model.ProcedureID })", onSuccessKeyPoints)
             });
             var variationsTable = $('#variationsTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Variation", new { id = Model.ProcedureID })", onSuccessVariations)
             });
             var complicationsTable = $('#complicationsTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Complication", new { id = Model.ProcedureID })", onSuccessComplications)
             });
             var historyTable = $('#historyTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","History", new { id = Model.ProcedureID })", onSuccessHistory)
             });
             var referencesTable = $('#referencesTable').DataTable({
                 paging: false,
                 rowReorder: true,
-                processing: true,
                 // Load JSON data behind table. We will use this json data to update the actual table.
                 ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Reference", new { id = Model.ProcedureID })", onSuccessReferences)
             });
+
             // Common Ajax Call to get all data from server for each table
             function CommonAjaxCall(type, url, successCallback) {
                 $.ajax({
@@ -511,73 +506,114 @@
                     },
                 });
             }
+
             // STEPS
             var newStepData;
             function onSuccessSteps(data) {
                 newStepData = {};
                 newStepData.steps = data;
+                if ($('#stepsTable').hide()) {
+                    $('#stepsTable').show();
+                }
             }
             stepsTable.on('row-reorder', function (e, detail, edit) {
-                newStepData.firstSequence = detail[0].newData;
-                newStepData.secondSequence = detail[0].oldData;
-                alert("MOVE!!!!   " + JSON.stringify(newStepData));
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newStepData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Step")", validationToken, JSON.stringify(newStepData), onSuccessSteps);
-
+                $('#stepsTable').hide();
             });
             // KEY POINTS
             var newKeyPointData;
             function onSuccessKeyPoints(data) {
                 newKeyPointData = {};
                 newKeyPointData.keypoints = data;
+                if ($('#keyPointsTable').hide()) {
+                    $('#keyPointsTable').show();
+                }
             }
             keyPointsTable.on('row-reorder', function (e, detail, edit) {
-                newKeyPointData.firstSequence = detail[0].newData;
-                newKeyPointData.secondSequence = detail[0].oldData;
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newKeyPointData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","KeyPoint")", validationToken, JSON.stringify(newKeyPointData), onSuccessKeyPoints);
+                $('#keyPointsTable').hide();
             });
             // VARIATIONS
             var newVariationData;
             function onSuccessVariations(data) {
                 newVariationData = {};
                 newVariationData.variations = data;
+                if ($('#variationsTable').hide()) {
+                    $('#variationsTable').show();
+                }
             }
             variationsTable.on('row-reorder', function (e, detail, edit) {
-                newVariationData.firstSequence = detail[0].newData;
-                newVariationData.secondSequence = detail[0].oldData;
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newVariationData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Variation")", validationToken, JSON.stringify(newVariationData), onSuccessVariations);
+                $('#variationsTable').hide();
             });
             // COMPLICATIONS
             var newComplicationData;
             function onSuccessComplications(data) {
                 newComplicationData = {};
                 newComplicationData.complications = data;
+                if ($('#complicationsTable').hide()) {
+                    $('#complicationsTable').show();
+                }
             }
             complicationsTable.on('row-reorder', function (e, detail, edit) {
-                newComplicationData.firstSequence = detail[0].newData;
-                newComplicationData.secondSequence = detail[0].oldData;
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newComplicationData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Complication")", validationToken, JSON.stringify(newComplicationData), onSuccessComplications);
+                $('#complicationsTable').hide();
             });
             // HISTORY
             var newHistoryData;
             function onSuccessHistory(data) {
                 newHistoryData = {};
                 newHistoryData.history = data;
+                if ($('#historyTable').hide()) {
+                    $('#historyTable').show();
+                }
             }
             historyTable.on('row-reorder', function (e, detail, edit) {
-                newHistoryData.firstSequence = detail[0].newData;
-                newHistoryData.secondSequence = detail[0].oldData;
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newHistoryData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","History")", validationToken, JSON.stringify(newHistoryData), onSuccessHistory);
+                $('#historyTable').hide();
             });
             // REFERENCES
             var newReferencesData;
             function onSuccessReferences(data) {
                 newReferencesData = {};
                 newReferencesData.references = data;
+                if ($('#referencesTable').hide()) {
+                    $('#referencesTable').show();
+                }
             }
             referencesTable.on('row-reorder', function (e, detail, edit) {
-                newReferencesData.firstSequence = detail[0].newData;
-                newReferencesData.secondSequence = detail[0].oldData;
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newReferencesData.updates = changes;
                 UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Reference")", validationToken, JSON.stringify(newReferencesData), onSuccessReferences);
+                $('#referencesTable').hide();
             });
         })
     </script>

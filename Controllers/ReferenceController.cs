@@ -53,7 +53,7 @@ namespace Website.Controllers
                 var referenceInfoJson = JsonConvert.SerializeObject(referenceInfo);
                 return Json(referenceInfoJson, JsonRequestBehavior.AllowGet);
             }
-            return null;
+            return View(response.ReasonPhrase);
         }
 
         // GET: References/Details/
@@ -149,29 +149,30 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateHeaderAntiForgeryToken]
-        public async Task<ActionResult> EditSequence(string references, string firstSequence, string secondSequence)
+        public async Task<ActionResult> EditSequence(string references, Dictionary<string,string> updates)
         {
-            List<reference> listOfReferences = JsonConvert.DeserializeObject<List<reference>>(references);
+            // USE TWO LISTS
+            // Only send query to db to update and no need for server to send back updated list every time.
+            // First list will be used to update on server.
+            List<reference> listOfReferences = new List<reference>();
+            // Second list will be used to update list on the client-side display. No need to get new updated list from server.
+            List<reference> passListToView = JsonConvert.DeserializeObject<List<reference>>(references);
 
-            // Find rows that will be swapped
-            reference findFirstRow = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(firstSequence));
-            reference findSecondRow = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(secondSequence));
-
-            // Proceed to swap rows
-            findFirstRow.Number = int.Parse(secondSequence);
-            findSecondRow.Number = int.Parse(firstSequence);
-
-            HttpResponseMessage responseOne = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findFirstRow.ReferenceID.ToString()), findFirstRow);
-            responseOne.EnsureSuccessStatusCode();
-            HttpResponseMessage responseTwo = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, findSecondRow.ReferenceID.ToString()), findSecondRow);
-            responseOne.EnsureSuccessStatusCode();
-
-            if (responseOne.IsSuccessStatusCode && responseTwo.IsSuccessStatusCode)
+            // Initialise empty row to store our row to be updated
+            reference rowNumber = new reference();
+            foreach (KeyValuePair<string, string> item in updates)
             {
-                // Get updated list again
-                return Json(JsonConvert.SerializeObject(listOfReferences), JsonRequestBehavior.AllowGet);
+                listOfReferences = JsonConvert.DeserializeObject<List<reference>>(references);
+                rowNumber = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(item.Key));
+                rowNumber.Number = int.Parse(item.Value);
+                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.ReferenceID.ToString()), rowNumber);
+                response.EnsureSuccessStatusCode();
+                if (response.IsSuccessStatusCode)
+                {
+                    passListToView.FirstOrDefault(x => x.ReferenceID == rowNumber.ReferenceID).Number = int.Parse(item.Value);
+                }
             }
-            return null;
+            return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);
         }
 
         // GET: References/Delete/
