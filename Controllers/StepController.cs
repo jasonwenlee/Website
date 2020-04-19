@@ -100,7 +100,14 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = stepInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (stepInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = stepInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
             step.ProcedureID = ProcedureController.procID;
@@ -161,14 +168,17 @@ namespace Website.Controllers
             step rowNumber = new step();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfSteps = JsonConvert.DeserializeObject<List<step>>(steps);
-                rowNumber = listOfSteps.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.StepID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.StepID == rowNumber.StepID).Number = int.Parse(item.Value);
+                    listOfSteps = JsonConvert.DeserializeObject<List<step>>(steps);
+                    rowNumber = listOfSteps.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.StepID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.StepID == rowNumber.StepID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

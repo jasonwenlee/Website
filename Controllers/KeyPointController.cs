@@ -87,7 +87,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,KeyPointID,Importance,Description,DiagramURL")] keypoint keypoint)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,KeyPointID,Importance,Description,DiagramURL,Header")] keypoint keypoint)
         {
             int countSteps = 0;
             List<keypoint> keyPointInfo = new List<keypoint>();
@@ -100,7 +100,14 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 keyPointInfo = JsonConvert.DeserializeObject<List<keypoint>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = keyPointInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (keyPointInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = keyPointInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
             keypoint.ProcedureID = ProcedureController.procID;
@@ -135,7 +142,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,KeyPointID,Importance,Description,DiagramURL")] keypoint keypoint)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,KeyPointID,Importance,Description,DiagramURL,Header")] keypoint keypoint)
         {
             keypoint.ProcedureID = ProcedureController.procID;
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, keypoint.KeyPointID.ToString()), keypoint);
@@ -161,14 +168,17 @@ namespace Website.Controllers
             keypoint rowNumber = new keypoint();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfKeyPoints = JsonConvert.DeserializeObject<List<keypoint>>(keypoints);
-                rowNumber = listOfKeyPoints.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.KeyPointID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.KeyPointID == rowNumber.KeyPointID).Number = int.Parse(item.Value);
+                    listOfKeyPoints = JsonConvert.DeserializeObject<List<keypoint>>(keypoints);
+                    rowNumber = listOfKeyPoints.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.KeyPointID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.KeyPointID == rowNumber.KeyPointID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

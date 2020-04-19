@@ -88,7 +88,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,VariationID,Header,SubHeader")] variation variation)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,VariationID,Header,SubHeader,Number")] variation variation)
         {
             int countSteps = 0;
             List<variation> variationInfo = new List<variation>();
@@ -101,7 +101,14 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 variationInfo = JsonConvert.DeserializeObject<List<variation>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = variationInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (variationInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = variationInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
             variation.ProcedureID = ProcedureController.procID;
@@ -136,7 +143,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,VariationID,Header,SubHeader")] variation variation)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,VariationID,Header,SubHeader,Number")] variation variation)
         {
             variation.ProcedureID = ProcedureController.procID;
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, variation.VariationID.ToString()), variation);
@@ -162,14 +169,17 @@ namespace Website.Controllers
             variation rowNumber = new variation();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfVariations = JsonConvert.DeserializeObject<List<variation>>(variations);
-                rowNumber = listOfVariations.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.VariationID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.VariationID == rowNumber.VariationID).Number = int.Parse(item.Value);
+                    listOfVariations = JsonConvert.DeserializeObject<List<variation>>(variations);
+                    rowNumber = listOfVariations.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.VariationID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.VariationID == rowNumber.VariationID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

@@ -87,7 +87,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,ComplicationID,Name,DiagramURL")] complication complication)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,ComplicationID,Name,DiagramURL,Number")] complication complication)
         {
             int countSteps = 0;
             List<complication> complicationInfo = new List<complication>();
@@ -100,7 +100,14 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 complicationInfo = JsonConvert.DeserializeObject<List<complication>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = complicationInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (complicationInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = complicationInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
             complication.ProcedureID = ProcedureController.procID;
@@ -135,7 +142,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,ComplicationID,Name,DiagramURL")] complication complication)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,ComplicationID,Name,DiagramURL,Number")] complication complication)
         {
             complication.ProcedureID = ProcedureController.procID;
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, complication.ComplicationID.ToString()), complication);
@@ -161,14 +168,17 @@ namespace Website.Controllers
             complication rowNumber = new complication();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfComplications = JsonConvert.DeserializeObject<List<complication>>(complications);
-                rowNumber = listOfComplications.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.ComplicationID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.ComplicationID == rowNumber.ComplicationID).Number = int.Parse(item.Value);
+                    listOfComplications = JsonConvert.DeserializeObject<List<complication>>(complications);
+                    rowNumber = listOfComplications.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.ComplicationID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.ComplicationID == rowNumber.ComplicationID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

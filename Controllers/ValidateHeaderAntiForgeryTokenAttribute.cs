@@ -7,6 +7,9 @@ using System.Web.Mvc;
 
 namespace Website.Controllers
 {
+    /**
+     * This class is used to validate our token when editing the sequence of rows in datatables. 
+     */
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class ValidateHeaderAntiForgeryTokenAttribute : FilterAttribute, IAuthorizationFilter
     {

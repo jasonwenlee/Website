@@ -87,7 +87,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,HistoryID,Content")] history history)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,HistoryID,Content,Number")] history history)
         {
             int countSteps = 0;
             List<history> historyInfo = new List<history>();
@@ -100,9 +100,17 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 historyInfo = JsonConvert.DeserializeObject<List<history>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = historyInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (historyInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = historyInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
+            //history.Content = Server.HtmlEncode(history.Content);
             history.ProcedureID = ProcedureController.procID;
             history.Number = countSteps;
 
@@ -126,6 +134,7 @@ namespace Website.Controllers
             {
                 var responseDetail = response.Content.ReadAsStringAsync().Result;
                 historyInfo = JsonConvert.DeserializeObject<history>(responseDetail);
+                historyInfo.Content = Server.HtmlEncode(historyInfo.Content);
             }
             return View(historyInfo);
         }
@@ -135,9 +144,10 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,HistoryID,Content")] history history)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,HistoryID,Content,Number")] history history)
         {
             history.ProcedureID = ProcedureController.procID;
+            //history.Content = Server.HtmlEncode(history.Content);
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, history.HistoryID.ToString()), history);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
@@ -161,14 +171,17 @@ namespace Website.Controllers
             history rowNumber = new history();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfHistory = JsonConvert.DeserializeObject<List<history>>(history);
-                rowNumber = listOfHistory.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.HistoryID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.HistoryID == rowNumber.HistoryID).Number = int.Parse(item.Value);
+                    listOfHistory = JsonConvert.DeserializeObject<List<history>>(history);
+                    rowNumber = listOfHistory.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.HistoryID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.HistoryID == rowNumber.HistoryID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

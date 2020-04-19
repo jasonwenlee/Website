@@ -88,7 +88,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,ReferenceID,Content")] reference reference)
+        public async Task<ActionResult> Create([Bind(Include = "ProcedureID,ReferenceID,Content,Number")] reference reference)
         {
             int countSteps = 0;
             List<reference> referenceInfo = new List<reference>();
@@ -101,7 +101,14 @@ namespace Website.Controllers
                 var responseDetail = getResponse.Content.ReadAsStringAsync().Result;
                 // Deserialise to find all steps belonging to chosen procedure
                 referenceInfo = JsonConvert.DeserializeObject<List<reference>>(responseDetail).FindAll(x => x.ProcedureID == ProcedureController.procID);
-                countSteps = referenceInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                if (referenceInfo.Count() == 0)
+                {
+                    countSteps = 1;
+                }
+                else
+                {
+                    countSteps = referenceInfo.Select(x => (int)x.Number).ToList().Max() + 1;
+                }
             }
 
             reference.ProcedureID = ProcedureController.procID;
@@ -136,7 +143,7 @@ namespace Website.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,ReferenceID,Content")] reference reference)
+        public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,ReferenceID,Content,Number")] reference reference)
         {
             reference.ProcedureID = ProcedureController.procID;
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, reference.ReferenceID.ToString()), reference);
@@ -162,14 +169,17 @@ namespace Website.Controllers
             reference rowNumber = new reference();
             foreach (KeyValuePair<string, string> item in updates)
             {
-                listOfReferences = JsonConvert.DeserializeObject<List<reference>>(references);
-                rowNumber = listOfReferences.FirstOrDefault(x => x.Number == int.Parse(item.Key));
-                rowNumber.Number = int.Parse(item.Value);
-                HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.ReferenceID.ToString()), rowNumber);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                if (int.TryParse(item.Key, out int key) && int.TryParse(item.Value, out int value))
                 {
-                    passListToView.FirstOrDefault(x => x.ReferenceID == rowNumber.ReferenceID).Number = int.Parse(item.Value);
+                    listOfReferences = JsonConvert.DeserializeObject<List<reference>>(references);
+                    rowNumber = listOfReferences.FirstOrDefault(x => x.Number == key);
+                    rowNumber.Number = value;
+                    HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, rowNumber.ReferenceID.ToString()), rowNumber);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        passListToView.FirstOrDefault(x => x.ReferenceID == rowNumber.ReferenceID).Number = value;
+                    }
                 }
             }
             return Json(JsonConvert.SerializeObject(passListToView), JsonRequestBehavior.AllowGet);

@@ -1,5 +1,5 @@
 ﻿@model Website.Models.procedure
-
+@using Website.HTMLHelper
 @{
     ViewBag.Title = "Details";
 }
@@ -14,31 +14,31 @@
     <h4>Information</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.LongName)
+        <dt style="inline-size:fit-content">
+            Medical Term
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.LongName)
         </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ShortName)
+        <dt style="inline-size:fit-content">
+            Medical Term (Short-form)
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.ShortName)
         </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.VideoSource)
+        <dt style="inline-size:fit-content">
+            Video Source
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.VideoSource)
         </dd>
 
-        <dt>
+        <dt style="inline-size:fit-content">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
 
@@ -80,10 +80,10 @@
                 {
                     <tr>
                         <td>
-                           @item.Number
+                            @item.Number
                         </td>
                         <td>
-                            @item.Content
+                            @Html.DisplayWithBreaksFor(model => @item.Content)
                         </td>
                         <td>
                             @item.DiagramURL
@@ -129,7 +129,7 @@
                     Paragraph
                 </th>
                 <th>
-                    Importance
+                    Header
                 </th>
                 <th>
                     Description
@@ -152,10 +152,10 @@
                             @item.Number
                         </td>
                         <td>
-                            @item.Importance
+                            @item.Header
                         </td>
                         <td>
-                            @item.Description
+                            @Html.DisplayWithBreaksFor(model => @item.Description)
                         </td>
                         <td>
                             @item.DiagramURL
@@ -203,7 +203,7 @@
                     Header
                 </th>
                 <th>
-                    Sub Header
+                    Content
                 </th>
                 <th>
                     User Actions
@@ -223,7 +223,7 @@
                             @item.Header
                         </td>
                         <td>
-                            @item.SubHeader
+                            @Html.DisplayWithBreaksFor(model => @item.SubHeader)
                         </td>
                         <td>
                             @Html.RouteLink("Edit", new
@@ -345,9 +345,9 @@
                     <tr>
                         <td>
                             @item.Number
-                        </td>                        
+                        </td>
                         <td>
-                            @item.Content
+                            @Html.Raw(@item.Content)
                         </td>
                         <td>
                             @Html.RouteLink("Edit", new
@@ -406,7 +406,8 @@
                             @item.Number
                         </td>
                         <td>
-                            @item.Content
+                            @Html.DisplayWithBreaksFor(model => @item.Content)
+
                         </td>
                         <td>
                             @Html.RouteLink("Edit", new
@@ -506,7 +507,6 @@
                     },
                 });
             }
-
             // STEPS
             var newStepData;
             function onSuccessSteps(data) {
