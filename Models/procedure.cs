@@ -12,8 +12,8 @@ namespace Website.Models
             this.complications = new HashSet<complication>();
             this.histories = new HashSet<history>();
             this.keypoints = new HashSet<keypoint>();
-            this.procedures = new HashSet<procedure_has_relatedprocedure>();
-            this.relatedprocedures = new HashSet<procedure_has_relatedprocedure>();
+            this.procedures = new HashSet<relatedprocedure>();
+            this.relatedprocedures = new HashSet<relatedprocedure>();
             this.references = new HashSet<reference>();
             this.steps = new HashSet<step>();
             this.variations = new HashSet<variation>();
@@ -28,8 +28,8 @@ namespace Website.Models
         public virtual ICollection<complication> complications { get; set; }
         public virtual ICollection<history> histories { get; set; }
         public virtual ICollection<keypoint> keypoints { get; set; }
-        public virtual ICollection<procedure_has_relatedprocedure> procedures { get; set; }
-        public virtual ICollection<procedure_has_relatedprocedure> relatedprocedures { get; set; }
+        public virtual ICollection<relatedprocedure> procedures { get; set; }
+        public virtual ICollection<relatedprocedure> relatedprocedures { get; set; }
         public virtual ICollection<reference> references { get; set; }
         public virtual ICollection<step> steps { get; set; }
         public virtual ICollection<variation> variations { get; set; }

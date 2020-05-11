@@ -16,13 +16,9 @@
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
-            <div>
-                @Html.LabelFor(model => model.ProcedureID, "Procedure Name", htmlAttributes: new { @class = "control-label col-md-2" })
-            </div>
+            @Html.LabelFor(model => model.ProcedureID, "Procedure Name", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                <div>
-                    @ViewBag.Procedure
-                </div>
+                @ViewBag.Procedure
             </div>
         </div>
 
@@ -50,16 +46,36 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     <script>
-        var options = {
-            debug: 'info',
-            placeholder: 'Write history...',
-            readOnly: false,
+        var toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            ['blockquote'/*, 'code-block'*/],
+
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+            ['clean']                                         // remove formatting button
+        ];
+
+        var quill = new Quill('#description', {
+            modules: {
+                toolbar: toolbarOptions
+            },
             theme: 'snow'
-        };
-        var quill = new Quill('#description', options);  // First matching element will be used
+        }); 
+
+        //var options = {
+        //    debug: 'info',
+        //    placeholder: 'Write history...',
+        //    readOnly: false,
+        //    theme: 'snow'
+        //};
+
+        //var quill = new Quill('#description', options);  // First matching element will be used
+
         $(function () {
             $("#btnSubmit").click(function () {
-                console.log(quill.getContents());
                 $("#content").val(quill.root.innerHTML);
             });
         });

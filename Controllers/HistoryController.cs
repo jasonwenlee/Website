@@ -147,7 +147,7 @@ namespace Website.Controllers
         public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,HistoryID,Content,Number")] history history)
         {
             history.ProcedureID = ProcedureController.procID;
-            //history.Content = Server.HtmlEncode(history.Content);
+            history.Content = Server.HtmlDecode(history.Content);
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, history.HistoryID.ToString()), history);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });

@@ -31,6 +31,7 @@
                 @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
             </div>
         </div>
+
         <div class="form-group">
             @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -42,7 +43,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input type="submit" id="btnSubmit" value="Save" class="btn btn-default" />
             </div>
         </div>
     </div>
@@ -60,13 +61,40 @@
             txt.innerHTML = html;
             return txt.value;
         };
-        var options = {
-            debug: 'info',
-            placeholder: 'Write history...',
-            readOnly: false,
-            theme: 'snow'
-        };
-        var quill = new Quill('#description', options);  // First matching element will be used
+        var toolbarOptions =
+        [
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            ['blockquote'/*, 'code-block'*/],
+            ['image'],
+
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+            ['clean']                                         // remove formatting button
+        ];
+
+        var quill = new Quill('#description', {
+            theme: 'snow',
+            modules: {
+                toolbar: {
+                    container: toolbarOptions,
+                    handlers: {
+                        image: imageHandler
+                    }
+                }
+            },
+        });
+
+        function imageHandler() {
+            var range = this.quill.getSelection();
+            var value = prompt('What is the image URL');
+            if (value) {
+                this.quill.insertEmbed(range.index, 'image', value, Quill.sources.USER);
+            }
+        }
+
         $(document).ready(function () {
             var decoded = decodeHTML(decodeHTML('@Model.Content'));
             quill.clipboard.dangerouslyPasteHTML(decoded);

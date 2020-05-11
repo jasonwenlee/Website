@@ -191,11 +191,16 @@ td,
 th {
   padding: 0;
 }
+
+#procedureTable {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    table-layout: fixed;
+}
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
-  *,
-  *:before,
-  *:after {
+    *, *:before, *:after {
     color: #000 !important;
     text-shadow: none !important;
     background: transparent !important;

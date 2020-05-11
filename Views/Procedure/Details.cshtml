@@ -406,8 +406,7 @@
                             @item.Number
                         </td>
                         <td>
-                            @Html.DisplayWithBreaksFor(model => @item.Content)
-
+                            @Html.Raw(@item.Content)
                         </td>
                         <td>
                             @Html.RouteLink("Edit", new

@@ -4,12 +4,15 @@
     ViewBag.Title = "Index";
 }
 
+@*Use for Ajax anti forgery token*@
+@Html.AntiForgeryToken()
+
 <h2>Index</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
-<table class="table">
+<table class="table" id="procedureTable" >
     <thead>
         <tr>
             <th>
@@ -56,18 +59,58 @@
 
 @section Scripts {
     <script>
-        $.ajax({
-            url: "@Url.Action("IndexJson","Procedure")",
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            async: true,
-
-            success: function (data) {
-            },
-            error: function (error) {
-                alert("AJAX ERROR: " + error.status)
+        @*$(document).ready(function () {
+            var validationToken = $('input[name=__RequestVerificationToken]').val();
+            // Convert all exisiting tables into DataTable
+            var procedureTable = $('#procedureTable').DataTable({
+                paging: false,
+                rowReorder: true,
+                // Load JSON data behind table. We will use this json data to update the actual table.
+                ajax: CommonAjaxCall("GET", "@Url.Action("IndexJson","Procedure")", onSuccessSteps)
+            });
+            // Common Ajax Call to get all data from server for each table
+            function CommonAjaxCall(type, url, successCallback) {
+                $.ajax({
+                    type: type,
+                    url: url,
+                    dataType: 'json', // DataType is used when getting info from server
+                    success: function (data) {
+                        successCallback(data);
+                    },
+                });
             }
-        });
-    </script> 
+            // Common Ajax Call for updating rows in each table
+            function UpdateRowAjaxCall(type, url, token, data, recallFunction) {
+                $.ajax({
+                    type: type,
+                    url: url,
+                    data: data,
+                    contentType: 'application/json; charset=utf-8', // ContentType is used when posting info to the server
+                    headers: { '__RequestVerificationToken': token },
+                    // Pass new data to call back functions
+                    success: function (result) {
+                        recallFunction(result)
+                    },
+                });
+            }
+            // PROCEDURE
+            var newProcedureData;
+            function onSuccessSteps(data) {
+                newProcedureData = {};
+                newProcedureData.procedures = data;
+                if ($('#procedureTable').hide()) {
+                    $('#procedureTable').show();
+                }
+            }
+            procedureTable.on('row-reorder', function (e, detail, edit) {
+                var changes = {};
+                for (var i = 0, ien = detail.length; i < ien; i++) {
+                    changes[detail[i].oldData] = detail[i].newData;
+                }
+                newProcedureData.updates = changes;
+                UpdateRowAjaxCall("POST", "@Url.Action("EditSequence","Step")", validationToken, JSON.stringify(newStepData), onSuccessSteps);
+                $('#procedureTable').hide();
+            });
+        })*@
+    </script>
 }

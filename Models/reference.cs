@@ -15,6 +15,7 @@ namespace Website.Models
 
         public int ProcedureID { get; set; }
         public int ReferenceID { get; set; }
+        [AllowHtml]
         public string Content { get; set; }
         public Nullable<int> Number { get; set; }
 

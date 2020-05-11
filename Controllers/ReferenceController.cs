@@ -146,6 +146,7 @@ namespace Website.Controllers
         public async Task<ActionResult> Edit([Bind(Include = "ProcedureID,ReferenceID,Content,Number")] reference reference)
         {
             reference.ProcedureID = ProcedureController.procID;
+            reference.Content = Server.HtmlDecode(reference.Content);
             HttpResponseMessage response = await client.PutAsJsonAsync(String.Format("{0}/{1}", urlPath, reference.ReferenceID.ToString()), reference);
             response.EnsureSuccessStatusCode();
             return RedirectToAction("Details", "Procedure", new { id = ProcedureController.procID });
