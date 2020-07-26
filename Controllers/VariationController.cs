@@ -18,21 +18,21 @@ namespace Website.Controllers
         string urlPath = WebConfigurationManager.AppSettings["apiVariationsPath"];
 
         // GET: Variations
-        //[HttpGet]
-        //public async Task<ActionResult> Index()
-        //{
-        //    List<variation> variationInfo = new List<variation>();
-        //    // Send request to find web api REST service
-        //    HttpResponseMessage response = await client.GetAsync(urlPath);
+        [HttpGet]
+        public async Task<ActionResult> Index()
+        {
+            List<variation> variationInfo = new List<variation>();
+            // Send request to find web api REST service
+            HttpResponseMessage response = await client.GetAsync(urlPath);
 
-        //    // Check if response is successful 
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var responseDetail = response.Content.ReadAsStringAsync().Result;
-        //        variationInfo = JsonConvert.DeserializeObject<List<variation>>(responseDetail);
-        //    }
-        //    return View(variationInfo);
-        //}
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                variationInfo = JsonConvert.DeserializeObject<List<variation>>(responseDetail);
+            }
+            return View(variationInfo);
+        }
 
         // Get index in Json format
         [HttpGet]

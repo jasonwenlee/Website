@@ -1,5 +1,4 @@
-﻿using Microsoft.Ajax.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
-using System.Web.Helpers;
 using System.Web.Mvc;
 using Website.Models;
 
@@ -20,21 +18,21 @@ namespace Website.Controllers
         string urlPath = WebConfigurationManager.AppSettings["apiStepsPath"];
 
         // GET: Step
-        //[HttpGet]
-        //public async Task<ActionResult> Index()
-        //{
-        //    List<step> stepInfo = new List<step>();
-        //    // Send request to find web api REST service for steps
-        //    HttpResponseMessage response = await client.GetAsync(urlPath);
+        [HttpGet]
+        public async Task<ActionResult> Index()
+        {
+            List<step> stepInfo = new List<step>();
+            // Send request to find web api REST service for steps
+            HttpResponseMessage response = await client.GetAsync(urlPath);
 
-        //    // Check if response is successful 
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var responseDetail = response.Content.ReadAsStringAsync().Result;
-        //        stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail);
-        //    }
-        //    return View(stepInfo);
-        //}
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                stepInfo = JsonConvert.DeserializeObject<List<step>>(responseDetail);
+            }
+            return View(stepInfo);
+        }
 
         // Get index in Json format
         [HttpGet]

@@ -2,12 +2,7 @@
     padding-top: 50px;
     padding-bottom: 20px;
 }
-#procedureTable {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-wrap: break-word;
-    table-layout: fixed;
-}
+
 /* Set padding to keep content from hitting the edges */
 .body-content {
     padding-left: 15px;
