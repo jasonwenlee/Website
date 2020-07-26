@@ -18,21 +18,21 @@ namespace Website.Controllers
         string urlPath = WebConfigurationManager.AppSettings["apiComplicationsPath"];
 
         // GET: Complications
-        //[HttpGet]
-        //public async Task<ActionResult> Index()
-        //{
-        //    List<complication> complicationInfo = new List<complication>();
-        //    // Send request to find web api REST service
-        //    HttpResponseMessage response = await client.GetAsync(urlPath);
+        [HttpGet]
+        public async Task<ActionResult> Index()
+        {
+            List<complication> complicationInfo = new List<complication>();
+            // Send request to find web api REST service
+            HttpResponseMessage response = await client.GetAsync(urlPath);
 
-        //    // Check if response is successful 
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var responseDetail = response.Content.ReadAsStringAsync().Result;
-        //        complicationInfo = JsonConvert.DeserializeObject<List<complication>>(responseDetail);
-        //    }
-        //    return View(complicationInfo);
-        //}
+            // Check if response is successful 
+            if (response.IsSuccessStatusCode)
+            {
+                var responseDetail = response.Content.ReadAsStringAsync().Result;
+                complicationInfo = JsonConvert.DeserializeObject<List<complication>>(responseDetail);
+            }
+            return View(complicationInfo);
+        }
 
         // Get index in Json format
         [HttpGet]
